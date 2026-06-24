@@ -1,0 +1,5 @@
+Django>=6.0,<7.0
+mysqlclient>=2.1
+paho-mqtt>=1.6.1
+python-dotenv>=1.0.0
+django-cors-headers>=4.3.0

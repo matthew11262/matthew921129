@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物聯網個人專題</title>
+    <link rel="stylesheet" href="/static/mainapp/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #edf2ff;
+            background: radial-gradient(circle at top left, #152140 0%, #0b1321 38%, #050912 100%);
+            padding-top: calc(1.5cm + 16px);
+        }
+        .dashboard-shell {
+            min-height: calc(100vh - 1.5cm - 16px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 16px 40px;
+            background: linear-gradient(135deg, #4183cf 0%, #6c5ce7 100%);
+        }
+        .dashboard-panel {
+            width: 100%;
+            max-width: 950px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 32px;
+            box-shadow: 0 32px 90px rgba(0, 0, 0, 0.24);
+            padding: 36px;
+            margin-top: 16px;
+        }
+        .top-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1.5cm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 32px;
+            background: linear-gradient(135deg, #1e6ed8, #2375d3);
+            color: #ffffff;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+        }
+        .top-banner a {
+            color: #eef4ff;
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 10px 18px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.12);
+            transition: transform 0.2s ease, background 0.2s ease;
+            margin-right: 2.5cm;
+        }
+        .top-banner .banner-title {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .top-banner a {
+            color: #eef4ff;
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 10px 18px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.12);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .top-banner a:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.18);
+        }
+        .dashboard-hero {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .dashboard-hero h1 {
+            margin: 0;
+            font-size: 3rem;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+        }
+        .dashboard-hero p {
+            max-width: 760px;
+            margin: 18px auto 0;
+            color: rgba(255, 255, 255, 0.84);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+        .dashboard-tag {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 12px 20px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .dashboard-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+            margin: 36px 0;
+        }
+        .dashboard-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(200px, 1fr));
+            gap: 18px;
+        }
+        .summary-card {
+            padding: 22px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #f8fbff;
+            text-align: center;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            letter-spacing: 0.03em;
+        }
+        .summary-card p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.78);
+            line-height: 1.7;
+        }
+        @media (max-width: 900px) {
+            .dashboard-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-banner">
+        <div class="banner-title">B11113027 謝秉修</div>
+        <a href="{{ team_url }}" target="_blank">組網站</a>
+    </div>
+    <div class="dashboard-shell">
+        <div class="dashboard-panel">
+            <section class="dashboard-hero">
+                <div class="hero-label">個人專題 / IoT 儀表板</div>
+                <h1>謝秉修的物聯網專題</h1>
+                <p>這是一個整合 MQTT 即時感測、MySQL 資料庫儲存與 Chart.js 趨勢視覺化的儀表板。展示感測器即時數據、歷史趨勢與原始資料紀錄。</p>
+                <div class="dashboard-tag">B11113027 • MQTT / MySQL / Chart.js</div>
+            </section>
+
+            <div class="dashboard-divider"></div>
+
+            <section class="dashboard-summary">
+                <article class="summary-card">
+                    <h3>即時監控</h3>
+                    <p>閱讀最新溫度、濕度與光照度資料，了解感測狀態。</p>
+                </article>
+                <article class="summary-card">
+                    <h3>歷史分析</h3>
+                    <p>使用折線圖展示過去資料趨勢，輕鬆觀察變化。</p>
+                </article>
+                <article class="summary-card">
+                    <h3>原始資料</h3>
+                    <p>呈現每一筆感測紀錄的時間與數值，方便查詢與分析。</p>
+                </article>
+            </section>
+
+            <div class="dashboard-divider"></div>
+
+            <main class="page-content">
+                <section class="info-grid">
+                    <article class="info-card">
+                        <span class="info-title">Broker</span>
+                        <p>100.97.224.8:8003</p>
+                    </article>
+                    <article class="info-card">
+                        <span class="info-title">資料庫</span>
+                        <p>iot_personal_db</p>
+                    </article>
+                    <article class="info-card">
+                        <span class="info-title">更新頻率</span>
+                        <p>每 3 秒自動更新最新數據</p>
+                    </article>
+                </section>
+
+                <section class="sensor-grid">
+                    <article class="sensor-card">
+                        <div class="sensor-header">
+                            <span>溫度</span>
+                            <span class="sensor-badge">℃</span>
+                        </div>
+                        <p class="sensor-value" id="temperature-value">--</p>
+                        <p class="sensor-meta" id="temperature-time">尚未接收</p>
+                    </article>
+                    <article class="sensor-card">
+                        <div class="sensor-header">
+                            <span>濕度</span>
+                            <span class="sensor-badge">%</span>
+                        </div>
+                        <p class="sensor-value" id="humidity-value">--</p>
+                        <p class="sensor-meta" id="humidity-time">尚未接收</p>
+                    </article>
+                    <article class="sensor-card">
+                        <div class="sensor-header">
+                            <span>光照度</span>
+                            <span class="sensor-badge">lux</span>
+                        </div>
+                        <p class="sensor-value" id="light-value">--</p>
+                        <p class="sensor-meta" id="light-time">尚未接收</p>
+                    </article>
+                </section>
+
+                <section class="chart-section">
+                    <div class="chart-header">
+                        <div>
+                            <h2>歷史資料折線圖</h2>
+                            <p>顯示最近 7 天 IoT 感測器數據趨勢。</p>
+                        </div>
+                        <div class="chart-badge">數據即時更新</div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="history-chart"></canvas>
+                    </div>
+                </section>
+
+                <section class="table-section">
+                    <div class="table-header">
+                        <div>
+                            <h2>原始歷史紀錄</h2>
+                            <p>查看感測器每一筆儲存的原始數據。</p>
+                        </div>
+                        <div class="table-actions">
+                            <label>類型
+                                <select id="filter-type">
+                                    <option value="">全部</option>
+                                    <option value="temperature">溫度</option>
+                                    <option value="humidity">濕度</option>
+                                    <option value="light">光照度</option>
+                                </select>
+                            </label>
+                            <label>起始日期
+                                <input type="date" id="date-from">
+                            </label>
+                            <label>結束日期
+                                <input type="date" id="date-to">
+                            </label>
+                            <button id="load-records">查詢</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>感測器</th>
+                                    <th>數值</th>
+                                    <th>時間</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <button id="prev-page">上一頁</button>
+                        <span id="page-info">1 / 1</span>
+                        <button id="next-page">下一頁</button>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script src="/static/mainapp/js/dashboard.js"></script>
+</body>
+</html>
