@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.utils import timezone
-from .models import SensorData, ButtonData
+from .models import ButtonData, GameState  # 刪除了 SensorData，加入了新關卡的 GameState
 
 HOME_INFO = {
     'name': '謝秉修',
@@ -16,44 +16,46 @@ def home(request):
 
 
 def api_latest(request):
-    latest_values = {}
-    for sensor_type in [SensorData.TEMPERATURE, SensorData.HUMIDITY, SensorData.LIGHT]:
-        reading = SensorData.objects.filter(sensor_type=sensor_type, is_latest=True).order_by('-timestamp').first()
-        if reading:
-            latest_values[sensor_type] = {
-                'value': reading.value,
-                'timestamp': reading.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            }
-        else:
-            latest_values[sensor_type] = {
-                'value': None,
-                'timestamp': None,
-            }
+    """
+    獲取最新 9 大關卡的即時遊戲狀態，供前端網頁分開顯示
+    """
+    reading = GameState.objects.filter(is_latest=True).order_by('-timestamp').first()
+    if reading:
+        latest_values = {
+            'direction': reading.direction,
+            'key_height': reading.key_height,
+            'error_count': reading.error_count,
+            'freq': reading.freq,
+            'rgb_color': reading.rgb_color,
+            'morse_code': reading.morse_code,
+            'vault_knob': reading.vault_knob,
+            'keypad': reading.keypad,
+            'switch_state': reading.switch_state,
+            'timestamp': reading.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+    else:
+        latest_values = {
+            'direction': '--', 'key_height': '--', 'error_count': '--',
+            'freq': '--', 'rgb_color': '--', 'morse_code': '--',
+            'vault_knob': '--', 'keypad': '--', 'switch_state': '--',
+            'timestamp': None
+        }
     return JsonResponse({'latest': latest_values})
 
 
 def api_history(request):
-    days = int(request.GET.get('days', 7))
-    end_time = timezone.now()
-    start_time = end_time - timezone.timedelta(days=days)
-    readings = SensorData.objects.filter(timestamp__range=(start_time, end_time)).order_by('timestamp')
-
-    timestamps = [r.timestamp.strftime('%Y-%m-%d %H:%M:%S') for r in readings]
-    history = {
-        'temperature': [r.value for r in readings if r.sensor_type == SensorData.TEMPERATURE],
-        'humidity': [r.value for r in readings if r.sensor_type == SensorData.HUMIDITY],
-        'light': [r.value for r in readings if r.sensor_type == SensorData.LIGHT],
-    }
-    return JsonResponse({'history': history, 'timestamps': timestamps})
+    """
+    原本用於溫濕度折線圖。因數據已移除，回傳空結構避免前端 JS 查無路徑噴 500 錯誤
+    """
+    return JsonResponse({'history': {}, 'timestamps': []})
 
 
 def api_records(request):
-    sensor_type = request.GET.get('type')
+    """
+    分頁讀取 9 大關卡的歷史紀錄資料表格
+    """
     page_number = request.GET.get('page', 1)
-
-    records = SensorData.objects.all()
-    if sensor_type in [SensorData.TEMPERATURE, SensorData.HUMIDITY, SensorData.LIGHT]:
-        records = records.filter(sensor_type=sensor_type)
+    records = GameState.objects.all().order_by('-timestamp')
 
     start_date = request.GET.get('date_from')
     end_date = request.GET.get('date_to')
@@ -66,8 +68,15 @@ def api_records(request):
     page = paginator.get_page(page_number)
     data = [
         {
-            'sensor_type': r.sensor_type,
-            'value': r.value,
+            'direction': r.direction,
+            'key_height': r.key_height,
+            'error_count': r.error_count,
+            'freq': r.freq,
+            'rgb_color': r.rgb_color,
+            'morse_code': r.morse_code,
+            'vault_knob': r.vault_knob,
+            'keypad': r.keypad,
+            'switch_state': r.switch_state,
             'timestamp': r.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
         }
         for r in page.object_list
@@ -81,6 +90,10 @@ def api_records(request):
         'has_previous': page.has_previous(),
     })
 
+
+# ==========================================
+#  以下為你原本保留、仍在使用的按鈕 (ButtonData) 邏輯
+# ==========================================
 
 def api_button_status(request):
     latest_button = ButtonData.objects.filter(is_latest=True).order_by('-timestamp').first()

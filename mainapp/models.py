@@ -1,34 +1,26 @@
 from django.db import models
 
-class SensorData(models.Model):
-    TEMPERATURE = 'temperature'
-    HUMIDITY = 'humidity'
-    LIGHT = 'light'
-
-    SENSOR_CHOICES = [
-        (TEMPERATURE, 'Temperature'),
-        (HUMIDITY, 'Humidity'),
-        (LIGHT, 'Light'),
-    ]
-
-    sensor_type = models.CharField(max_length=32, choices=SENSOR_CHOICES)
-    value = models.FloatField()
-    timestamp = models.DateTimeField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_latest = models.BooleanField(default=False)
+# 1. 遊戲狀態模型 (GameState)
+class GameState(models.Model):
+    direction = models.CharField(max_length=50, blank=True)
+    key_height = models.CharField(max_length=50, blank=True)
+    error_count = models.CharField(max_length=50, blank=True)
+    freq = models.CharField(max_length=50, blank=True)
+    rgb_color = models.CharField(max_length=50, blank=True)
+    morse_code = models.CharField(max_length=50, blank=True)
+    vault_knob = models.CharField(max_length=50, blank=True)
+    keypad = models.CharField(max_length=50, blank=True)
+    switch_state = models.CharField(max_length=50, blank=True)
+    
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_latest = models.BooleanField(default=True)
 
     class Meta:
-        indexes = [
-            models.Index(fields=['sensor_type', 'is_latest']),
-            models.Index(fields=['timestamp']),
-        ]
         ordering = ['-timestamp']
 
-    def __str__(self):
-        return f"{self.sensor_type} {self.value} @ {self.timestamp}"
-
-
+# 2. 按鈕模型 (ButtonData)
 class ButtonData(models.Model):
+    # 將 STATUS_CHOICES 定義在類別外面，或是放在該類別內部
     STATUS_CHOICES = [
         ('ON', 'On'),
         ('OFF', 'Off'),

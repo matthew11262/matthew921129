@@ -32,18 +32,28 @@ async function fetchButtonStatus() {
     try {
         const response = await fetch('/api/button/status/');
         const data = await response.json();
+        console.log('Button status response:', data);
+        
         const statusEl = document.getElementById('button-status');
         const timeEl = document.getElementById('button-time');
         
-        if (data.status !== 'UNKNOWN') {
+        console.log('Status element:', statusEl);
+        console.log('Time element:', timeEl);
+        
+        if (data.status !== 'UNKNOWN' && statusEl && timeEl) {
             const statusColor = data.status === 'ON' ? '#7ef59d' : '#ff6b6b';
             statusEl.textContent = data.status;
             statusEl.style.color = statusColor;
             timeEl.textContent = `更新時間：${data.timestamp}`;
+            console.log('Button status updated to:', data.status);
         } else {
-            statusEl.textContent = '--';
-            statusEl.style.color = '#edf2ff';
-            timeEl.textContent = '資料尚未接收';
+            if (statusEl) {
+                statusEl.textContent = '--';
+                statusEl.style.color = '#edf2ff';
+            }
+            if (timeEl) {
+                timeEl.textContent = '資料尚未接收';
+            }
         }
     } catch (error) {
         console.error('fetchButtonStatus error:', error);

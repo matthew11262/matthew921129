@@ -1,75 +1,45 @@
-import os
-import threading
-import django
-from django.utils import timezone
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
-
-from django.conf import settings
-from mainapp.models import SensorData
-import paho.mqtt.client as mqtt
-
-MQTT_TOPICS = [
-    ('sensors/temperature', 0),
-    ('sensors/humidity', 0),
-    ('sensors/light', 0),
-]
-
-
-def save_sensor_reading(sensor_type, value, timestamp=None):
-    if timestamp is None:
-        timestamp = timezone.now()
-
-    SensorData.objects.filter(sensor_type=sensor_type, is_latest=True).update(is_latest=False)
-    SensorData.objects.create(
-        sensor_type=sensor_type,
-        value=value,
-        timestamp=timestamp,
-        is_latest=True,
-    )
-
-
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print('MQTT connected successfully')
-        client.subscribe(MQTT_TOPICS)
-    else:
-        print('MQTT connection failed with code', rc)
-
+import json
+from mainapp.models import GameState, ButtonData
 
 def on_message(client, userdata, msg):
     try:
-        value = float(msg.payload.decode('utf-8'))
         topic = msg.topic
+        payload = msg.payload.decode('utf-8')
+        
+        # 處理遊戲狀態 (9 大關卡)
+        if topic == 'escaperoom/game_state':
+            data = json.loads(payload)
+            # 先將舊狀態標記為非最新
+            GameState.objects.filter(is_latest=True).update(is_latest=False)
+            # 建立新的狀態
+            GameState.objects.create(
+                direction=data.get('dir'),
+                key_height=data.get('key'),
+                error_count=data.get('err'),
+                freq=data.get('freq'),
+                rgb_color=data.get('rgb'),
+                morse_code=data.get('morse'),
+                vault_knob=data.get('vault'),
+                keypad=data.get('keypad'),
+                switch_state=data.get('switch'),
+                is_latest=True
+            )
+            print("遊戲狀態已更新")
 
-        if topic.endswith('temperature'):
-            sensor_type = SensorData.TEMPERATURE
-        elif topic.endswith('humidity'):
-            sensor_type = SensorData.HUMIDITY
-        elif topic.endswith('light'):
-            sensor_type = SensorData.LIGHT
-        else:
-            return
+        # 處理按鈕狀態 (保留你原本的邏輯)
+        elif topic == 'escaperoom/button':
+            data = json.loads(payload)
+            btn_id = data.get('button_id')
+            btn_status = data.get('status')
+            
+            ButtonData.objects.filter(button_id=btn_id, is_latest=True).update(is_latest=False)
+            ButtonData.objects.create(
+                button_id=btn_id,
+                status=btn_status,
+                timestamp=timezone.now(),
+                is_latest=True
+            )
+            print(f"按鈕 {btn_id} 狀態已更新")
 
-        save_sensor_reading(sensor_type, value)
     except Exception as exc:
-        print('MQTT message error:', exc)
-
-
-def start_mqtt_client():
-    client = mqtt.Client()
-    client.on_connect = on_connect
-    client.on_message = on_message
-
-    broker_host = settings.MQTT_HOST
-    broker_port = settings.MQTT_PORT
-
-    def run():
-        try:
-            client.connect(broker_host, broker_port, 60)
-            client.loop_forever()
-        except Exception as exc:
-            print('MQTT connection failed:', exc)
-
-    thread = threading.Thread(target=run, daemon=True)
-    thread.start()
+        print('MQTT 處理錯誤:', exc)
