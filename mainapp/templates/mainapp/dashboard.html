@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物聯網個人專題</title>
+    <title>物聯網個人網站</title>
     <link rel="stylesheet" href="/static/mainapp/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -145,16 +145,14 @@
 </head>
 <body>
     <div class="top-banner">
-        <div class="banner-title">B11113027 謝秉修</div>
+        <div class="banner-title">第六組 B11113027 謝秉修</div>
         <a href="{{ team_url }}" target="_blank">組網站</a>
     </div>
     <div class="dashboard-shell">
         <div class="dashboard-panel">
             <section class="dashboard-hero">
-                <div class="hero-label">個人專題 / IoT 儀表板</div>
+                <div class="hero-label">個人網站 / IoT 儀表板</div>
                 <h1>謝秉修的物聯網專題</h1>
-                <p>這是一個整合 MQTT 即時感測、MySQL 資料庫儲存與 Chart.js 趨勢視覺化的儀表板。展示感測器即時數據、歷史趨勢與原始資料紀錄。</p>
-                <div class="dashboard-tag">B11113027 • MQTT / MySQL / Chart.js</div>
             </section>
 
             <div class="dashboard-divider"></div>
@@ -184,7 +182,7 @@
                     </article>
                     <article class="info-card">
                         <span class="info-title">資料庫</span>
-                        <p>iot_personal_db</p>
+                        <p>iot_matthew_db</p>
                     </article>
                     <article class="info-card">
                         <span class="info-title">更新頻率</span>
@@ -216,6 +214,14 @@
                         </div>
                         <p class="sensor-value" id="light-value">--</p>
                         <p class="sensor-meta" id="light-time">尚未接收</p>
+                    </article>
+                    <article class="sensor-card">
+                        <div class="sensor-header">
+                            <span>外接按鈕</span>
+                            <span class="sensor-badge">Button</span>
+                        </div>
+                        <p class="sensor-value" id="button-status">--</p>
+                        <p class="sensor-meta" id="button-time">尚未接收</p>
                     </article>
                 </section>
 

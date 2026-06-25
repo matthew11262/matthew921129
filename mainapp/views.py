@@ -2,12 +2,12 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.utils import timezone
-from .models import SensorData
+from .models import SensorData, ButtonData
 
 HOME_INFO = {
     'name': '謝秉修',
     'student_id': 'B11113027',
-    'team_url': 'https://example.com',  # 請改成你的小組網站連結
+    'team_url': 'http://100.97.224.8:8000',
 }
 
 
@@ -80,3 +80,35 @@ def api_records(request):
         'has_next': page.has_next(),
         'has_previous': page.has_previous(),
     })
+
+
+def api_button_status(request):
+    latest_button = ButtonData.objects.filter(is_latest=True).order_by('-timestamp').first()
+    if latest_button:
+        return JsonResponse({
+            'button_id': latest_button.button_id,
+            'status': latest_button.status,
+            'timestamp': latest_button.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        })
+    return JsonResponse({
+        'button_id': None,
+        'status': 'UNKNOWN',
+        'timestamp': None,
+    })
+
+
+def api_button_history(request):
+    days = int(request.GET.get('days', 7))
+    end_time = timezone.now()
+    start_time = end_time - timezone.timedelta(days=days)
+    records = ButtonData.objects.filter(timestamp__range=(start_time, end_time)).order_by('timestamp')
+
+    data = [
+        {
+            'button_id': r.button_id,
+            'status': r.status,
+            'timestamp': r.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+        for r in records
+    ]
+    return JsonResponse({'records': data})

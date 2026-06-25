@@ -26,3 +26,26 @@ class SensorData(models.Model):
 
     def __str__(self):
         return f"{self.sensor_type} {self.value} @ {self.timestamp}"
+
+
+class ButtonData(models.Model):
+    STATUS_CHOICES = [
+        ('ON', 'On'),
+        ('OFF', 'Off'),
+    ]
+    
+    button_id = models.CharField(max_length=50, default='button_1')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    timestamp = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_latest = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['button_id', 'is_latest']),
+            models.Index(fields=['timestamp']),
+        ]
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.button_id} {self.status} @ {self.timestamp}"

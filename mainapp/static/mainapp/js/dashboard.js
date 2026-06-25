@@ -28,6 +28,28 @@ async function fetchLatest() {
     }
 }
 
+async function fetchButtonStatus() {
+    try {
+        const response = await fetch('/api/button/status/');
+        const data = await response.json();
+        const statusEl = document.getElementById('button-status');
+        const timeEl = document.getElementById('button-time');
+        
+        if (data.status !== 'UNKNOWN') {
+            const statusColor = data.status === 'ON' ? '#7ef59d' : '#ff6b6b';
+            statusEl.textContent = data.status;
+            statusEl.style.color = statusColor;
+            timeEl.textContent = `更新時間：${data.timestamp}`;
+        } else {
+            statusEl.textContent = '--';
+            statusEl.style.color = '#edf2ff';
+            timeEl.textContent = '資料尚未接收';
+        }
+    } catch (error) {
+        console.error('fetchButtonStatus error:', error);
+    }
+}
+
 async function fetchHistory() {
     try {
         const response = await fetch('/api/history/?days=7');
@@ -143,10 +165,12 @@ function setupListeners() {
 
 async function init() {
     await fetchLatest();
+    await fetchButtonStatus();
     await fetchHistory();
     await fetchRecords();
     setupListeners();
     setInterval(fetchLatest, 3000);
+    setInterval(fetchButtonStatus, 3000);
 }
 
 init();
