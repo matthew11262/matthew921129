@@ -15,9 +15,22 @@ class Migration(migrations.Migration):
             name='SensorData',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('device_name', models.CharField(max_length=50)),
-                ('temperature', models.FloatField()),
+                ('sensor_type', models.CharField(choices=[('temperature', 'Temperature'), ('humidity', 'Humidity'), ('light', 'Light')], max_length=32)),
+                ('value', models.FloatField()),
+                ('timestamp', models.DateTimeField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('is_latest', models.BooleanField(default=False)),
             ],
+            options={
+                'ordering': ['-timestamp'],
+            },
+        ),
+        migrations.AddIndex(
+            model_name='sensordata',
+            index=models.Index(fields=['sensor_type', 'is_latest'], name='mainapp_sen_sensor__idx'),
+        ),
+        migrations.AddIndex(
+            model_name='sensordata',
+            index=models.Index(fields=['timestamp'], name='mainapp_sen_timesta_idx'),
         ),
     ]

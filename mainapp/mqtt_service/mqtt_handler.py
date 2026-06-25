@@ -4,7 +4,6 @@ import django
 from django.utils import timezone
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
-django.setup()
 
 from django.conf import settings
 from mainapp.models import SensorData
